@@ -18,3 +18,5 @@ Such insights can help us track tumorigenesis in patients and help in the diagno
 developing and guiding therapeutic strategies.
 
 Below is a graphical abstract summarizing the key steps taken to achieve this:
+![Graphical Abstract for Genomics Workshop Stage 2]
+(https://github.com/oluwamay/oluwamay/blob/main/20220615_201840_0000.png)
