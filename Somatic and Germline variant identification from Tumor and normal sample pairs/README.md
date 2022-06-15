@@ -70,3 +70,39 @@ irregularies or features that make affect your results such as adapter contamina
 conda install -c bioconda fastqc multiqc --yes
 ```
 ###### Command
+```
+echo -e "\n Data Preprocessing... \n"
+
+mkdir -p Fastqc_Reports  #create directory for the fastqc output
+```
+```
+#Qc on reads
+for sample in `cat list.txt`
+do
+	fastqc raw_data/${sample}*.fastq.gz -o Fastqc_Reports
+done
+
+multiqc Fastqc_Reports -o Fastqc_Reports	
+```
+The multiqc report can be examined from [here](). From the report, the reads quality are great, a few 
+adapters are however observed.
+#### ii. Removing Low quality reads using Fastp
+###### Description
+> Fastp is a FASTQ data Pre-Processing tool, the algorithm has functions for quality control, trimming of 
+Adapters, trimming by quality and read pruning. It also supports multi threading, it is believed to be 
+faster than other FASTQ Pre-Processing tools.
+###### Installation
+```
+sudo apt-get install -y fastp
+```
+###### Command
+```
+
+
+
+```
+The post trimming multiqc report can be found [here]() It is evident from the report that the quality of the
+reads improved having per base quality scores above 35 and no adapters observed. After trimming an average 
+of 0.73% normal reads and 1.24% tumor reads were lost.
+**Note:  To view the multiqc html reports download the files and view them from your browser.**
+## Mapped Reads Processing.
