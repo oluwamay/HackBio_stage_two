@@ -22,4 +22,9 @@ Below is a graphical abstract summarizing the key steps taken to achieve this:
 
 This tutorial was reproduced as a Linux pipeline.
 # Go to Selection :
-1. [Introduction]()
+1. [Introduction](https://github.com/oluwamay/oluwamay/blob/main/Somatic%20and%20Germline%20variant%20identification%20from%20Tumor%20and%20normal%20sample%20pairs/README.md#introduction)
+2. [Linux Pipeline]()
+3. [Contributors]()
+
+# Linux Pipeline.
+## Dataset Description
