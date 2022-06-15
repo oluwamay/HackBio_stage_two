@@ -23,8 +23,18 @@ Below is a graphical abstract summarizing the key steps taken to achieve this:
 This tutorial was reproduced as a Linux pipeline.
 # Go to Selection :
 1. [Introduction](https://github.com/oluwamay/oluwamay/blob/main/Somatic%20and%20Germline%20variant%20identification%20from%20Tumor%20and%20normal%20sample%20pairs/README.md#introduction)
-2. [Linux Pipeline]()
+2. [Linux Pipeline](https://github.com/oluwamay/oluwamay/blob/main/Somatic%20and%20Germline%20variant%20identification%20from%20Tumor%20and%20normal%20sample%20pairs/README.md#linux-pipeline)
 3. [Contributors]()
 
 # Linux Pipeline.
+
 ## Dataset Description
+The datasets used in this analysis (reads from human chromosomes 5, 12 and 17), were obtained 
+from a cancer patient’s tumor and normal tissue samples. The normal tissue coudn't be the only
+sample used because healthy tissue contains many variants and every individual inherits a
+unique pattern of many variants from their parents. The samples (paired end) were two in number.
+
+## Data Download 
+The datasets were downloaded from Zenodo using the wget command.
+
+#### Sample Dataset
