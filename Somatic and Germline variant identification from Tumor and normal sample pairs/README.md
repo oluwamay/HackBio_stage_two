@@ -61,7 +61,7 @@ unzip hg19.chr5_12_17.fa.gz
 ## Pre-Processing and Trimming
 ### i. Quality Check
 The reads quality were examined using fastqc and an aggregate report generated with multiqc.
-##### Descriptio
+##### Description
 FastQC aims to provide a way to do quality control checks on sequence data. Within the `fastq` file
 is quality information that refers to the accuracy of each base call. This helps to determine any
 irregularies or features that make affect your results such as adapter contamination.
@@ -211,3 +211,80 @@ done
 ## Variant Calling and Classification
 http://varscan.sourceforge.net/somatic-calling.html
 ### Description
+To be able to identify variants from the mapped samples, the tool `VarScan somatic` was used. The command expects 
+both a normal and tumor sample in `Samtools` `pileup` format and outputs an indel file and snp file. The command
+reports germline, somatic, and LOH events at positions where both normal and tumor samples have sufficient coverage
+### Installation
+```
+wget https://sourceforge.net/projects/varscan/files/VarScan.v2.3.9.jar		
+```
+### Command
+##### Convert data to pileup
+```
+mkdir Variants
+
+for sample in `cat list.txt`
+do
+        samtools mpileup -f hg19.chr5_12_17.fa Mapping/${sample}.refilter.bam --min-MQ 1 --min-BQ 28 \
+                > Variants/${sample}.pileup
+done
+```
+##### Call Variants
+```
+java -jar VarScan.v2.3.9.jar somatic Variants/SLGFSK-N_231335.pileup \
+        Variants/SLGFSK-T_231336.pileup Variants/SLGFSK \
+        --normal-purity 1  --tumor-purity 0.5 --output-vcf 1 
+```
+##### Merge vcf
+VarScan generates 2 outputs (indel.vcf and snp.vcf), merge the two into one vcf file using `bcftools`.
+```
+#merge vcf
+bgzip Variants/SLGFSK.snp.vcf > Variants/SLGFSK.snp.vcf.gz
+bgzip Variants/SLGFSK.indel.vcf > Variants/SLGFSK.indel.vcf.gz
+tabix Variants/SLGFSK.snp.vcf.gz
+tabix Variants/SLGFSK.indel.vcf.gz
+bcftools merge Variants/SLGFSK.snp.vcf.gz Variants/SLGFSK.indel.vcf.gz > Variants/SLGFSK.vcf
+```
+### Variant Annotation
+##### Functional annotation using `SnpEff`
+https://pcingola.github.io/SnpEff/examples/
+##### Description
+`SnpEff` is a variant annotator and functional effect predictor. The output is appended to the vcf file with the field `ANN`. 
+A SnpEff database is required prior to performing annotation. In case the organism of interest is not present in the snpEff 
+database, you can build the database using the snpEff command. If the organism is present in the database, download it using 
+the SnpEff command.
+##### Installation
+```
+#download jar file
+wget https://snpeff.blob.core.windows.net/versions/snpEff_latest_core.zip
+
+# Unzip file
+unzip snpEff_latest_core.zip
+		
+#download snpEff database
+java -jar snpEff.jar download hg19
+```
+##### Command
+```
+#annotate variants
+java -Xmx8g -jar snpEff/snpEff.jar hg19 Variants/SLGFSK.vcf > Variants/SLGFSK.ann.vcf
+```		
+##### Clinical Annotation using `GEMINI`
+https://gemini.readthedocs.io/en/latest/content/preprocessing.html
+##### Description
+##### Installation
+```
+wget https://raw.github.com/arq5x/gemini/master/gemini/scripts/gemini_install.py
+python gemini_install.py /usr/local /usr/local/share/gemini
+```
+##### Command
+```
+gemini load -v Variants/SLGFSK.ann.vcf -t snpEff Annotation/gemini.db
+```
+Genimi annotation required additional download of annotation resources and databases that totaled to 21GB. Due to lack
+of enough resources (bundles and Storage space) to download these resources, we rather reverted to upload the generated 
+VCFs into Galaxy and perfrmed the rest of the Annotation with Gemini there with steps described under the Galaxy workflow 
+section.
+#####Conclusion
+
+##### Contributor
