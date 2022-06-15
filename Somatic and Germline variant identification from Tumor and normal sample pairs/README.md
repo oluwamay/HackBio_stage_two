@@ -59,17 +59,17 @@ wget https://zenodo.org/record/2582555/files/hg19.chr5_12_17.fa.gz
 unzip hg19.chr5_12_17.fa.gz
 ```
 ## Pre-Processing and Trimming
-#### i. Quality Check
+### i. Quality Check
 The reads quality were examined using fastqc and an aggregate report generated with multiqc.
-###### Descriptio
+##### Descriptio
 FastQC aims to provide a way to do quality control checks on sequence data. Within the `fastq` file
 is quality information that refers to the accuracy of each base call. This helps to determine any
 irregularies or features that make affect your results such as adapter contamination.
-###### Installation
+##### Installation
 ```
 conda install -c bioconda fastqc multiqc --yes
 ```
-###### Command
+##### Command
 ```
 echo -e "\n Data Preprocessing... \n"
 
@@ -86,16 +86,16 @@ multiqc Fastqc_Reports -o Fastqc_Reports
 ```
 The multiqc report can be examined from [here](). From the report, the reads quality are great, a few 
 adapters are however observed.
-#### ii. Removing Low quality reads using Fastp
-###### Description
+### ii. Removing Low quality reads using Fastp
+##### Description
 `Fastp` is a FASTQ data Pre-Processing tool, the algorithm has functions for quality control, trimming of 
 Adapters, trimming by quality and read pruning. It also supports multi threading, it is believed to be 
 faster than other FASTQ Pre-Processing tools.
-###### Installation
+##### Installation
 ```
 sudo apt-get install -y fastp
 ```
-###### Command
+##### Command
 ```
 
 
@@ -106,16 +106,16 @@ reads improved having per base quality scores above 35 and no adapters observed.
 of 0.73% normal reads and 1.24% tumor reads were lost.
 **Note:  To view the multiqc html reports download the files and view them from your browser.**
 ## Mapped Reads Processing.
-#### Description
+### Description
 Mapping of sample sequences against the reference genome is conducted with an aim of determining the most likey 
 source of the observed sequencing reads. `BWA-MEM` was used for alignment. The results of mapping is a sequence 
 alignment map (SAM) format. The file has a single unified format for storing read alignments to a reference genome.
-##### Installation
+#### Installation
 conda install -y -c bioconda bwa
 conda install -c bioconda samtools
 conda install -c bioconda bamtools
-##### Command
-###### Read Mapping
+#### Command
+##### Read Mapping
 In order to align the data, we need a reference to align against. First, a directory is created for the reference and 
 then copied. The reference is indexed to be able to align the data.This is done using the command;
 ```
@@ -141,7 +141,7 @@ bwa mem -R '@RG\tID:231336\tSM:Tumor' hg19.chr5_12_17.fa trimmed_reads/SLGFSK-T_
 
 
 ```
-###### Converting SAM files to BAM files, sorting and indexing.
+##### Converting SAM files to BAM files, sorting and indexing.
 A Binary Alignment Map (BAM) format is an equivalent to sam but its developed for fast processing and 
 indexing. It stores every read base, base quality and uses a single conventional technique for all types
  of data. The produced BAM files were sorted by read name and indexing was done for faster or rapid retrieval. 
@@ -157,7 +157,7 @@ do
         samtools index Mapping/${sample}.sorted.bam
 done
 ```
-###### Mapped Reads filtered
+##### Mapped Reads filtered
 ```
 for sample in `cat list.txt`
 do
@@ -169,7 +169,7 @@ View the output of the result:
 ```
 samtools flagstat <bam file>
 ```
-###### Duplicate Removal
+##### Duplicate Removal
 During library construction sometimes there's introduction of PCR (Polymerase Chain Reaction) duplicates, 
 these duplicates usually can result in false SNPs (Single Nucleotide Polymorphisms), whereby the can manifest 
 themselves as high read depth support. A low number of duplicates (<5%) in good libraries is considered standard.
@@ -186,7 +186,7 @@ done
 #or rmdup
 samtools rmdup SLGFSK35.sorted.bam  SLGFSK35.rdup and samtools rmdup SLGFSK36.sorted.bam  SLGFSK36.rdup
 ```
-###### Left Align BAM
+##### Left Align BAM
 ```
 for sample in `cat list.txt`
 do      
@@ -194,14 +194,14 @@ do
 
 #-c - compressed, -m - max-iterations
 ```
-###### Recalibrate Read Mapping qualities
+##### Recalibrate Read Mapping qualities
 ```
 for sample in `cat list.txt`
 do
         samtools calmd -@ 32 -b Mapping/${sample}.leftAlign.bam hg19.chr5_12_17.fa > Mapping/${sample}.recalibrate.bam
 done
 ```
-###### Refilter read mapping qualities
+##### Refilter read mapping qualities
 ```
 for sample in `cat list.txt`
 do
@@ -209,4 +209,5 @@ do
 done
 ```
 ## Variant Calling and Classification
-(http://varscan.sourceforge.net/somatic-calling.html)
+http://varscan.sourceforge.net/somatic-calling.html
+### Description
