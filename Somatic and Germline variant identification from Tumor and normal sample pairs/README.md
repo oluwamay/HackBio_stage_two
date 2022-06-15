@@ -106,4 +106,107 @@ reads improved having per base quality scores above 35 and no adapters observed.
 of 0.73% normal reads and 1.24% tumor reads were lost.
 **Note:  To view the multiqc html reports download the files and view them from your browser.**
 ## Mapped Reads Processing.
+#### Description
+Mapping of sample sequences against the reference genome is conducted with an aim of determining the most likey 
+source of the observed sequencing reads. `BWA-MEM` was used for alignment. The results of mapping is a sequence 
+alignment map (SAM) format. The file has a single unified format for storing read alignments to a reference genome.
+##### Installation
+conda install -y -c bioconda bwa
+conda install -c bioconda samtools
+conda install -c bioconda bamtools
+##### Command
+###### Read Mapping
+In order to align the data, we need a reference to align against. First, a directory is created for the reference and 
+then copied. The reference is indexed to be able to align the data.This is done using the command;
+```
+#Index reference file	
+bwa index hg19.chr5_12_17.fa 
+```
+This produces 5 files in the reference directory that BWA uses during the alignment phase. The 5 
+files have different extensions named amb,ann,bwt pac and sa. Alignment can be done using the program; 
+`bwa mem`
 
+Note that bwa is given a location , which is the path to the reference. Now, the two paired-end files 
+are aligned and the alignment output (in SAM format) directed to a file. 24 threads (processors) were
+used to speed up this process and a read group (i.e sample ID) information was added to the alignment:
+```
+mkdir Mapping
+   
+#Perform alignment
+bwa mem -R '@RG\tID:231335\tSM:Normal' hg19.chr5_12_17.fa trimmed_reads/SLGFSK-N_231335_r1_paired.fq.gz \
+      trimmed_reads/SLGFSK-N_231335_r2_paired.fq.gz > Mapping/SLGFSK-N_231335.sam
+
+bwa mem -R '@RG\tID:231336\tSM:Tumor' hg19.chr5_12_17.fa trimmed_reads/SLGFSK-T_231336_r1_paired.fq.gz \
+       trimmed_reads/SLGFSK-T_231336_r2_paired.fq.gz > Mapping/SLGFSK-T_231336.sam	
+
+
+```
+###### Converting SAM files to BAM files, sorting and indexing.
+A Binary Alignment Map (BAM) format is an equivalent to sam but its developed for fast processing and 
+indexing. It stores every read base, base quality and uses a single conventional technique for all types
+ of data. The produced BAM files were sorted by read name and indexing was done for faster or rapid retrieval. 
+At the end of the every BAM file, a special end of file (EOF) marker is usually written, the samtools index 
+command also checks for this and produces an error message if its not found.
+```
+for sample in `cat list.txt`
+do
+        Convert SAM to BAM and sort it 
+        samtools view -@ 20 -S -b Mapping/${sample}.sam | samtools sort -@ 32 > Mapping/${sample}.sorted.bam
+        
+        Index BAM file
+        samtools index Mapping/${sample}.sorted.bam
+done
+```
+###### Mapped Reads filtered
+```
+for sample in `cat list.txt`
+do
+	#Filter BAM files
+        samtools view -q 1 -f 0x2 -F 0x8 -b Mapping/${sample}.sorted.bam > Mapping/${sample}.filtered1.bam
+done
+```
+View the output of the result:
+```
+samtools flagstat <bam file>
+```
+###### Duplicate Removal
+During library construction sometimes there's introduction of PCR (Polymerase Chain Reaction) duplicates, 
+these duplicates usually can result in false SNPs (Single Nucleotide Polymorphisms), whereby the can manifest 
+themselves as high read depth support. A low number of duplicates (<5%) in good libraries is considered standard.
+```
+#use the command markdup
+for sample in `cat list.txt`
+do
+	samtools collate -o Mapping/${sample}.namecollate.bam Mapping/${sample}.filtered1.bam
+        samtools fixmate -m Mapping/${sample}.namecollate.bam Mapping/${sample}.fixmate.bam
+        samtools sort -@ 32 -o Mapping/${sample}.positionsort.bam Mapping/${sample}.fixmate.bam
+        samtools markdup -@32 -r Mapping/${sample}.positionsort.bam Mapping/${sample}.clean.bam
+done
+	
+#or rmdup
+samtools rmdup SLGFSK35.sorted.bam  SLGFSK35.rdup and samtools rmdup SLGFSK36.sorted.bam  SLGFSK36.rdup
+```
+###### Left Align BAM
+```
+for sample in `cat list.txt`
+do      
+        cat Mapping/${sample}.clean.bam  | bamleftalign -f hg19.chr5_12_17.fa -m 5 -c > Mapping/${sample}.leftAlign.bam
+
+#-c - compressed, -m - max-iterations
+```
+###### Recalibrate Read Mapping qualities
+```
+for sample in `cat list.txt`
+do
+        samtools calmd -@ 32 -b Mapping/${sample}.leftAlign.bam hg19.chr5_12_17.fa > Mapping/${sample}.recalibrate.bam
+done
+```
+###### Refilter read mapping qualities
+```
+for sample in `cat list.txt`
+do
+        bamtools filter -in Mapping/${sample}.recalibrate.bam -mapQuality <=254 > Mapping/${sample}.refilter.bam
+done
+```
+## Variant Calling and Classification
+(http://varscan.sourceforge.net/somatic-calling.html)
