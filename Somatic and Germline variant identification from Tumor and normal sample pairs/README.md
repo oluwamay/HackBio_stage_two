@@ -17,4 +17,4 @@ we will report variant sites and genes affected that could likely be the cause o
 Such insights can help us track tumorigenesis in patients and help in the diagnosis, prognosis,
 developing and guiding therapeutic strategies.
 
-Below is a graphical abstract summarizing the key steps taken to achieve this
+Below is a graphical abstract summarizing the key steps taken to achieve this:
