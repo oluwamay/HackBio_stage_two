@@ -38,7 +38,7 @@ unique pattern of many variants from their parents. The samples (paired end) wer
 The datasets were downloaded from Zenodo using the wget command.
 
 #### Sample Dataset
-'''
+```
 echo -e "\n Downloading data... \n"
 	
 mkdir -p raw_data 
@@ -48,16 +48,25 @@ wget https://zenodo.org/record/2582555/files/SLGFSK-N_231335_r1_chr5_12_17.fastq
 wget https://zenodo.org/record/2582555/files/SLGFSK-N_231335_r2_chr5_12_17.fastq.gz
 wget https://zenodo.org/record/2582555/files/SLGFSK-T_231336_r1_chr5_12_17.fastq.gz
 wget https://zenodo.org/record/2582555/files/SLGFSK-T_231336_r2_chr5_12_17.fastq.gz	
-'''
+```
 #### Reference Sequence
-'''
+```
 echo -e "\n Downloading reference sequence... \n"
 	
 wget https://zenodo.org/record/2582555/files/hg19.chr5_12_17.fa.gz
 
 #unzip reference
 unzip hg19.chr5_12_17.fa.gz
-'''
+```
 ## Pre-Processing and Trimming
-
-
+#### i. Quality Check
+The reads quality were examined using fastqc and an aggregate report generated with multiqc.
+###### Description
+FastQC aims to provide a way to do quality control checks on sequence data. Within the > fastq file
+is quality information that refers to the accuracy of each base call. This helps to determine any
+irregularies or features that make affect your results such as adapter contamination.
+###### Installation
+```
+conda install -c bioconda fastqc multiqc --yes
+```
+###### Command
