@@ -77,12 +77,8 @@ mkdir -p Fastqc_Reports  #create directory for the fastqc output
 ```
 ```
 #Qc on reads
-for sample in `cat list.txt`
-do
-	fastqc raw_data/${sample}*.fastq.gz -o Fastqc_Reports
-done
-
-multiqc Fastqc_Reports -o Fastqc_Reports	
+	fastqc *.fastq.gz -o Fastqc_Reports
+        multiqc Fastqc_Reports -o Fastqc_Reports	
 ```
 The multiqc report can be examined from [here](). From the report, the reads quality are great, a few 
 adapters are however observed.
@@ -97,9 +93,23 @@ sudo apt-get install -y fastp
 ```
 ##### Command
 ```
-
-
-
+mkdir -p trimmed_reads
+SAMPLES=(
+"SLGFSK-N_231335"
+"SLGFSK-N_231335"
+"SLGFSK-T_231336"
+"SLGFSK-T_231336"
+)
+for SAMPLE in "{SAMPLES[@]}"; do
+fastp \
+-i "$PWD/${SAMPLE}_r1_chr5_12_17.fastq.gz"\
+-I "$PWD/${SAMPLE}_r2_chr5_12_17.fastq.gz"\
+-o "trimmed_reads/${SAMPLE}_r1_chr5_12_17.trimmed.fastq.gz"\
+-O "trimmed_reads/${SAMPLE}_r2_chr5_12_17.trimmed.fastq.gz"\
+--html "trimmed_reads/${SAMPLE}_fastp.html"
+fastqc trimmed_reads/${SAMPLE}_r1_chr5_12_17.trimmed.fastq.gz trimmed_reads/${SAMPLE}_r2_chr5_12_17.trimmed.fastq.gz -o trimmed_reads/Fastqc_results
+done
+multiqc  trimmed_reads/Fastqc_results  -o trimmed_reads/Fastqc_results
 ```
 The post trimming multiqc report can be found [here]() It is evident from the report that the quality of the
 reads improved having per base quality scores above 35 and no adapters observed. After trimming an average 
