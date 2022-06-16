@@ -56,7 +56,7 @@ echo -e "\n Downloading reference sequence... \n"
 wget https://zenodo.org/record/2582555/files/hg19.chr5_12_17.fa.gz
 
 #unzip reference
-unzip hg19.chr5_12_17.fa.gz
+gunzip hg19.chr5_12_17.fa.gz
 ```
 ## Pre-Processing and Trimming
 ### i. Quality Check
