@@ -82,31 +82,30 @@ mkdir -p Fastqc_Reports  #create directory for the fastqc output
 ```
 The multiqc report can be examined from [here](). From the report, the reads quality are great, a few 
 adapters are however observed.
-### ii. Removing Low quality reads using Fastp
+### ii. Removing Low quality reads using Trimmomatic
 ##### Description
-`Fastp` is a FASTQ data Pre-Processing tool, the algorithm has functions for quality control, trimming of 
-Adapters, trimming by quality and read pruning. It also supports multi threading, it is believed to be 
-faster than other FASTQ Pre-Processing tools.
+`Trimmomatic` is a wrapper script that automate quality and adapter trimming. After analyzing data quality, the next step is to remove sequences that do not meet quality standards.
 ##### Installation
 ```
-sudo apt-get install -y fastp
+conda install -c bioconda trimmomatic --yes
 ```
 ##### Command
 ```
 mkdir -p trimmed_reads
 
 for sample in `cat list.txt`
-fastp \
--i "$PWD/${sample}_r1_chr5_12_17.fastq.gz"\
--I "$PWD/${sample}_r2_chr5_12_17.fastq.gz"\
--o "trimmed_reads/${sample}_r1_chr5_12_17.trimmed.fastq.gz"\
--O "trimmed_reads/${sample}_r2_chr5_12_17.trimmed.fastq.gz"\
---html "trimmed_reads/${sample}_fastp.html"
+do
+       trimmomatic PE -threads 8 raw_data/${sample}_r1_chr5_12_17.fastq.gz raw_data/${sample}_r2_chr5_12_17.fastq.gz \
+               trimmed_reads/${sample}_r1_paired.fq.gz trimmed_reads/${sample}_r1_unpaired.fq.gz \
+               trimmed_reads/${sample}_r2_paired.fq.gz trimmed_reads/${sample}_r2_unpaired.fq.gz \
+               ILLUMINACLIP:TruSeq3-PE.fa:2:30:10:8:keepBothReads \
+               LEADING:3 TRAILING:10 MINLEN:25
 done
+cd trimmed_reads
 
-fastqc trimmed_reads/${SAMPLE}_r1_chr5_12_17.trimmed.fastq.gz trimmed_reads/${SAMPLE}_r2_chr5_12_17.trimmed.fastq.gz -o trimmed_reads/Fastqc_Reports
+fastqc *.fq.gz -o Fastqc_results/
 
-multiqc  trimmed_reads/Fastqc_Reports  -o trimmed_reads/Fastqc_Reports
+multiqc  Fastqc_results -o Fastgc_results
 ```
 The post trimming multiqc report can be found [here]() It is evident from the report that the quality of the
 reads improved having per base quality scores above 35 and no adapters observed. After trimming an average 
