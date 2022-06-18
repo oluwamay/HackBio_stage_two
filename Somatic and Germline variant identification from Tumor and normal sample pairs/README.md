@@ -109,8 +109,10 @@ fastp \
 -o "trimmed_reads/${SAMPLE}_r1_chr5_12_17.trimmed.fastq.gz"\
 -O "trimmed_reads/${SAMPLE}_r2_chr5_12_17.trimmed.fastq.gz"\
 --html "trimmed_reads/${SAMPLE}_fastp.html"
-fastqc trimmed_reads/${SAMPLE}_r1_chr5_12_17.trimmed.fastq.gz trimmed_reads/${SAMPLE}_r2_chr5_12_17.trimmed.fastq.gz -o trimmed_reads/Fastqc_results
 done
+
+fastqc trimmed_reads/${SAMPLE}_r1_chr5_12_17.trimmed.fastq.gz trimmed_reads/${SAMPLE}_r2_chr5_12_17.trimmed.fastq.gz -o trimmed_reads/Fastqc_Reports
+
 multiqc  trimmed_reads/Fastqc_Reports  -o trimmed_reads/Fastqc_Reports
 ```
 The post trimming multiqc report can be found [here]() It is evident from the report that the quality of the
