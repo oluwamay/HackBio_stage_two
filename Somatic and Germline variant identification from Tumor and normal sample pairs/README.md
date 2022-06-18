@@ -95,20 +95,13 @@ sudo apt-get install -y fastp
 ```
 mkdir -p trimmed_reads
 
-SAMPLES=(
-"SLGFSK-N_231335"
-"SLGFSK-N_231335"
-"SLGFSK-T_231336"
-"SLGFSK-T_231336"
-)
-
-for SAMPLE in "{SAMPLES[@]}"; do
+for sample in `cat list.txt`
 fastp \
--i "$PWD/${SAMPLE}_r1_chr5_12_17.fastq.gz"\
--I "$PWD/${SAMPLE}_r2_chr5_12_17.fastq.gz"\
--o "trimmed_reads/${SAMPLE}_r1_chr5_12_17.trimmed.fastq.gz"\
--O "trimmed_reads/${SAMPLE}_r2_chr5_12_17.trimmed.fastq.gz"\
---html "trimmed_reads/${SAMPLE}_fastp.html"
+-i "$PWD/${sample}_r1_chr5_12_17.fastq.gz"\
+-I "$PWD/${sample}_r2_chr5_12_17.fastq.gz"\
+-o "trimmed_reads/${sample}_r1_chr5_12_17.trimmed.fastq.gz"\
+-O "trimmed_reads/${sample}_r2_chr5_12_17.trimmed.fastq.gz"\
+--html "trimmed_reads/${sample}_fastp.html"
 done
 
 fastqc trimmed_reads/${SAMPLE}_r1_chr5_12_17.trimmed.fastq.gz trimmed_reads/${SAMPLE}_r2_chr5_12_17.trimmed.fastq.gz -o trimmed_reads/Fastqc_Reports
