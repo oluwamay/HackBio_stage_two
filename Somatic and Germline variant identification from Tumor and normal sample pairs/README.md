@@ -205,7 +205,7 @@ done
 ```
 for sample in `cat list.txt`
 do
-        bamtools filter -in Mapping/${sample}.recalibrate.bam -mapQuality <=254 > Mapping/${sample}.refilter.bam
+        bamtools filter -in Mapping/${sample}.recalibrate.bam -mapQuality > Mapping/${sample}.refilter.bam
 done
 ```
 ## Variant Calling and Classification
