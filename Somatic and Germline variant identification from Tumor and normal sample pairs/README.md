@@ -190,6 +190,7 @@ samtools rmdup SLGFSK-T_231336.sorted.bam SLGFSK36.rdup
 for sample in `cat list.txt`
 do      
         cat Mapping/${sample}.rdup | bamleftalign -f hg19.chr5_12_17.fa -m 5 -c > Mapping/${sample}.leftAlign.bam
+	done
 
 #-c - compressed, -m - max-iterations
 ```
