@@ -156,20 +156,19 @@ command also checks for this and produces an error message if its not found.
 ```
 for sample in `cat list.txt`
 do
-        Convert SAM to BAM and sort it 
         samtools view -@ 20 -S -b Mapping/${sample}.sam | samtools sort -@ 32 > Mapping/${sample}.sorted.bam
         
-        Index BAM file
         samtools index Mapping/${sample}.sorted.bam
 done
+ Convert SAM to BAM and sort it and Index BAM file.
 ```
 ##### Mapped Reads filtered
 ```
 for sample in `cat list.txt`
 do
-	#Filter BAM files
         samtools view -q 1 -f 0x2 -F 0x8 -b Mapping/${sample}.sorted.bam > Mapping/${sample}.filtered1.bam
 done
+#Filter BAM files
 ```
 View the output of the result:
 ```
