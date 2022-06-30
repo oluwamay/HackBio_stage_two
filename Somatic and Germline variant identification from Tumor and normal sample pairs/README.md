@@ -180,6 +180,14 @@ During library construction sometimes there's introduction of PCR (Polymerase Ch
 these duplicates usually can result in false SNPs (Single Nucleotide Polymorphisms), whereby the can manifest 
 themselves as high read depth support. A low number of duplicates (<5%) in good libraries is considered standard.
 ```
+#use the command markdup
+for sample in `cat list.txt`
+do
+	samtools collate -o Mapping/${sample}.filtered1.bam Mapping/${sample}.namecollate.bam
+        samtools fixmate -m Mapping/${sample}.namecollate.bam Mapping/${sample}.fixmate.bam
+        samtools sort -@ 32 -o Mapping/${sample}.positionsort.bam Mapping/${sample}.fixmate.bam
+        samtools markdup -@32 -r Mapping/${sample}.positionsort.bam Mapping/${sample}.clean.bam
+done
 #use
 rmdup
 samtools rmdup SLGFSK-N_231335.sorted.bam SLGFSK35.rdup 
@@ -205,7 +213,7 @@ done
 ```
 for sample in `cat list.txt`
 do
-        bamtools filter -in Mapping/${sample}.recalibrate.bam -mapQuality > Mapping/${sample}.refilter.bam
+        bamtools filter -in Mapping/${sample}.recalibrate.bam -mapQuality "<=254" > Mapping/${sample}.refilter.bam
 done
 ```
 ## Variant Calling and Classification
