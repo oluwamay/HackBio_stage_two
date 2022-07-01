@@ -105,7 +105,7 @@ cd trimmed_reads
 
 fastqc *.fq.gz -o Fastqc_results/
 
-multiqc  Fastqc_results -o Fastgc_results
+multiqc  Fastqc_results -o Fastqc_results
 ```
 The post trimming multiqc report can be found [here]() It is evident from the report that the quality of the
 reads improved having per base quality scores above 35 and no adapters observed. After trimming an average 
