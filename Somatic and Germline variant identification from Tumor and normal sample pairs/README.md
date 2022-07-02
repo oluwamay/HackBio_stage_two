@@ -156,7 +156,7 @@ command also checks for this and produces an error message if its not found.
 ```
 for sample in `cat list.txt`
 do
-        samtools view -@ 20 -S -b Mapping/${sample}.sam | samtools sort -@ 32 > Mapping/${sample}.sorted.bam
+        samtools view -@ 20 -S -b Mapping/${sample}.sam | samtools sort -n -@ 32 > Mapping/${sample}.sorted.bam
         
         samtools index Mapping/${sample}.sorted.bam
 done
@@ -182,7 +182,7 @@ themselves as high read depth support. A low number of duplicates (<5%) in good 
 #use the command markdup
 for sample in `cat list.txt`
 do
-	samtools collate -o Mapping/${sample}.filtered1.bam Mapping/${sample}.namecollate.bam
+	samtools collate Mapping/${sample}.filtered1.bam Mapping/${sample}.namecollate.bam
         samtools fixmate -m Mapping/${sample}.namecollate.bam Mapping/${sample}.fixmate.bam
         samtools sort -@ 32 -o Mapping/${sample}.positionsort.bam Mapping/${sample}.fixmate.bam
         samtools markdup -@32 -r Mapping/${sample}.positionsort.bam Mapping/${sample}.clean.bam
