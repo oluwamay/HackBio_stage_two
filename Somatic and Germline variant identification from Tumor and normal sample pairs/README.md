@@ -284,7 +284,7 @@ https://gemini.readthedocs.io/en/latest/content/preprocessing.html
 wget https://raw.github.com/arq5x/gemini/master/gemini/scripts/gemini_install.py
 python gemini_install.py /usr/local /usr/local/share/gemini
 ```
-##### Command
+### Command
 ```
 gemini load -v Variants/SLGFSK.ann.vcf -t snpEff Annotation/gemini.db
 ```
