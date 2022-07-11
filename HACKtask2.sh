@@ -1,7 +1,6 @@
 #!/bin/bash
 #Download dataset
-echo -e "\n Downloading data... \n"
-        
+echo -e "\n Downloading data... \n"   
 mkdir -p raw_data 
 cd raw_data
         
@@ -23,7 +22,7 @@ echo -e "\n Data Preprocessing... \n"
 
 mkdir -p Fastqc_Reports  #creates directory for the fastqc output
 fastqc *.fastq.gz -o Fastqc_Reports
-        multiqc Fastqc_Reports -o Fastqc_Reports
+multiqc Fastqc_Reports -o Fastqc_Reports
 #Removing low quality reads with trimmomatic
 mkdir -p trimmed_reads
 
@@ -39,7 +38,7 @@ cd trimmed_reads
 
 fastqc *.fq.gz -o Fastqc_results/
 
-multiqc  Fastqc_results -o Fastgc_results
+multiqc  Fastqc_results -o Fastqc_results
 
 #Mapping
 #Index reference file   
@@ -53,11 +52,9 @@ bwa mem -R '@RG\tID:231335\tSM:Normal' hg19.chr5_12_17.fa trimmed_reads/SLGFSK-N
 bwa mem -R '@RG\tID:231336\tSM:Tumor' hg19.chr5_12_17.fa trimmed_reads/SLGFSK-T_231336_r1_paired.fq.gz \
        trimmed_reads/SLGFSK-T_231336_r2_paired.fq.gz > Mapping/SLGFSK-T_231336.sam      
 
-
 #convert samfiles to bam files, sort it and index bam file
 for sample in `cat list.txt`
-do
-     
+do     
         samtools view -@ 20 -S -b Mapping/${sample}.sam | samtools sort -@ 32 > Mapping/${sample}.sorted.bam
         samtools index Mapping/${sample}.sorted.bam
 done
@@ -68,17 +65,20 @@ do
         samtools view -q 1 -f 0x2 -F 0x8 -b Mapping/${sample}.sorted.bam > Mapping/${sample}.filtered1.bam | samtools flagstat ${sample}.filtered1.bam
 done
 
-
 #Duplicate removal using markdup
 for sample in `cat list.txt`
 do
         samtools collate -o Mapping/${sample}.filtered1.bam Mapping/${sample}.namecollate.bam
         samtools fixmate -m Mapping/${sample}.namecollate.bam Mapping/${sample}.fixmate.bam
         samtools sort -@ 32 -o Mapping/${sample}.positionsort.bam Mapping/${sample}.fixmate.bam
-#Left align Bam filesdup -@32 -r Mapping/${sample}.positionsort.bam Mapping/${sample}.clean.bam
+        samtools markdup -@32 -r Mapping/${sample}.positionsort.bam Mapping/${sample}.clean.bam
+ done
+     #Left Align Bam   
 for sample in `cat list.txt`
-do      done
-#recalibrate read qualityple}.rdup | bamleftalign -f hg19.chr5_12_17.fa -m 5 -c > Mapping/${sample}.leftAlign.bam
+do      
+     cat Mapping/${sample}.clean.bam | bamleftalign -f hg19.chr5_12_17.fa -m 5 -c > Mapping/${sample}.leftAlign.bam
+done
+#recalibrate read mapping qualities
 for sample in `cat list.txt`
 do
         samtools calmd -@ 32 -b Mapping/${sample}.leftAlign.bam hg19.chr5_12_17.fa > Mapping/${sample}.recalibrate.bam
@@ -97,9 +97,17 @@ wget https://sourceforge.net/projects/varscan/files/VarScan.v2.3.9.jar
 mkdir Variants
 
 for sample in `cat list.txt`
-do              > Variants/${sample}.pileup
-java -j --normal-purity 1  --tumor-purity 0.5 --output-vcf 15.pileup \ter.bam --min-MQ 1 --min-BQ 28 \
-# call vVariants/SLGFSK-T_231336.pileup Variants/SLGFSK \
+do    
+       samtools mpileup -f hg19.chr5_12_17.fa Mapping/${sample}.refilter.bam --min-MQ 1 --min-BQ 28 \
+       > Variants/${sample}.pileup
+ done
+
+# call variant
+      java -jar VarScan.v2.3.9.jar somatic Variants/SLGFSK-N_231335.pileup \
+      Variants/SLGFSK-T_231336.pileup Variants/SLGFSK \ 
+      --normal-purity 1  --tumor-purity 0.5 --output-vcf 1 
+```
+
 #merge vcf
 bgzip Variants/SLGFSK.snp.vcf > Variants/SLGFSK.snp.vcf.gz
 bgzip Variants/SLGFSK.indel.vcf > Variants/SLGFSK.indel.vcf.gz
